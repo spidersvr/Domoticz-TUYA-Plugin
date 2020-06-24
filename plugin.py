@@ -1,0 +1,312 @@
+# Domoticz TUYA Plugin
+#
+# Author: Wagner Oliveira (wbbo@hotmail.com)
+#
+"""
+<plugin key="tuya" name="TUYA" author="Wagner Oliveira" version="1.0.0" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/guino/Domoticz-TUYA">
+    <description>
+        <h2>TUYA Plugin</h2><br/>
+        This plugin is meant to control TUYA devices (on/off switches and Link LED lights)
+        <h3>Features</h3>
+        <ul style="list-style-type:square">
+            <li>Auto-detection of devices on network</li>
+            <li>On/Off control, state and available status display</li>
+        </ul>
+        <h3>Devices</h3>
+        <ul style="list-style-type:square">
+            <li>All devices that have on/off state should be supported</li>
+        </ul>
+        <h3>Configuration</h3>
+        Just enter your username and password for the TUYA app and everything will be configured automatically.
+        Devices can be renamed in Domoticz or you can rename them in the TUYA app and remove them from Domoticz so they are detected with a new name or layout.
+    </description>
+    <params>
+        <param field="Username" label="TUYA Username" width="300px" required="true" default=""/>
+        <param field="Password" label="TUYA Password" width="300px" required="true" default="" password="true"/>
+        <param field="Mode1" label="Country Code" width="30px" required="true" default="1"/>
+        <param field="Mode6" label="Debug" width="150px">
+            <options>
+                <option label="None" value="0"  default="true" />
+                <option label="Python Only" value="2"/>
+                <option label="Basic Debugging" value="62"/>
+                <option label="Basic+Messages" value="126"/>
+                <option label="Connections Only" value="16"/>
+                <option label="Connections+Python" value="18" default="true" />
+                <option label="Connections+Queue" value="144"/>
+                <option label="All" value="-1"/>
+            </options>
+        </param>
+    </params>
+</plugin>
+"""
+import Domoticz
+import threading
+import socket
+import html
+import sys
+import time
+import tuyaha
+import math
+import json
+
+class BasePlugin:
+    tuya = tuyaha.TuyaApi()
+    startup = True;
+    devs = {}
+    last_update = 0
+
+    def __init__(self):
+        return
+
+    def onStart(self):
+        Domoticz.Log("TUYA plugin started")
+        if Parameters["Mode6"] != "0":
+            Domoticz.Debugging(int(Parameters["Mode6"]))
+            DumpConfigToLog()
+        # Mark all existing devices as off/timed out initially (until they are discovered)
+        for u in Devices:
+            UpdateDevice(u, 0, 'Off', True)
+        # Create/Start update thread
+        self.updateThread = threading.Thread(name="TUYAUpdateThread", target=BasePlugin.handleThread, args=(self,))
+        self.updateThread.start()
+
+    def onStop(self):
+        Domoticz.Debug("onStop called")
+        while (threading.active_count() > 1):
+            time.sleep(1.0)
+
+    def onConnect(self, Connection, Status, Description):
+        Domoticz.Debug("onConnect called")
+
+    def onMessage(self, Connection, Data):
+        Domoticz.Debug("onMessage called")
+
+    def onCommand(self, Unit, Command, Level, Hue):
+        Domoticz.Debug("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
+
+        # Find the device for the Domoticz unit number provided
+        dev = None
+        # For each device
+        for tmpdev in self.devs:
+            # If the device we want is in this WEMO, set dev for it
+            if Devices[Unit].DeviceID == tmpdev.object_id():
+                dev = tmpdev
+
+        # If we didn't find it, leave (probably disconnected at this time)
+        if dev == None:
+            Domoticz.Error('Command for DeviceID='+Devices[Unit].DeviceID+' but device is not available.')
+            return
+
+        if not dev.available():
+            Domoticz.Error('Command for DeviceID='+Devices[Unit].DeviceID+' but device is offline.')
+            return
+
+        Domoticz.Log('Sending command for DeviceID='+Devices[Unit].DeviceID)
+
+        # Control device and update status in Domoticz
+        dev_type = dev.device_type()
+        if Command == 'On':
+            if dev_type == 'scene':
+                dev.activate()
+            elif dev_type == 'cover':
+                dev.close_cover()
+            else:
+                dev.turn_on()
+            UpdateDevice(Unit, 1, 'On', not dev.available())
+        elif Command == 'Off':
+            if dev_type == 'scene':
+                dev.activate()
+            elif dev_type == 'cover':
+                dev.open_cover()
+            else:
+                dev.turn_off();
+            UpdateDevice(Unit, 0, 'Off', not dev.available())
+        elif Command == 'Set Color':
+            # Convert RGB to Hue+Saturation
+            rgb = json.loads(Hue)
+            h, s = rgb_to_hs(rgb.get("r"), rgb.get("g"), rgb.get("b"))
+            Domoticz.Debug("color="+str(rgb)+" h="+str(h)+" s="+str(s))
+            # If color changed
+            if Devices[Unit].Color != Hue:
+                dev.set_color( [ h*360, s*100 ] )
+                Domoticz.Debug("Set color called")
+            # If level changed
+            if Devices[Unit].sValue != str(Level):
+                dev.set_brightness(round(Level*2.55))
+                Domoticz.Debug("Set bright called")
+            # Update status of Domoticz device
+            Devices[Unit].Update(nValue=1, sValue=str(Level), TimedOut=Devices[Unit].TimedOut, Color=Hue)
+        elif Command == 'Set Level':
+            # Set new level
+            dev.set_brightness(round(Level*2.55))
+            # Update status of Domoticz device
+            UpdateDevice(Unit, 1 if Devices[Unit].Type == 241 else 2, str(Level), Devices[Unit].TimedOut)
+
+        # Set last update
+        self.last_update = time.time()
+
+    def onNotification(self, Name, Subject, Text, Status, Priority, Sound, ImageFile):
+        Domoticz.Debug("Notification: " + Name + "," + Subject + "," + Text + "," + Status + "," + str(Priority) + "," + Sound + "," + ImageFile)
+
+    def onDisconnect(self, Connection):
+        Domoticz.Debug("onDisconnect called")
+
+    def onHeartbeat(self):
+        Domoticz.Debug("onHeartbeat called time="+str(time.time()))
+        # If it hasn't been at least 1 minute (corrected for ~2s runtime) since last update, skip it
+        if time.time() - self.last_update < 58:
+            return
+        self.startup = False
+        # Create/Start update thread
+        self.updateThread = threading.Thread(name="TUYAUpdateThread", target=BasePlugin.handleThread, args=(self,))
+        self.updateThread.start()
+
+    # Separate thread looping ever 10 seconds searching for new TUYAs on network and updating their status
+    def handleThread(self):
+        try:
+            Domoticz.Debug("in handlethread")
+            # Initialize/Update devices from TUYA API
+            if self.startup == True:
+                self.devs = self.tuya.init(Parameters["Username"], Parameters["Password"], Parameters["Mode1"], "tuya")
+            else:
+                self.tuya.check_access_token()
+                self.tuya.poll_devices_update()
+                self.devs = self.tuya.get_all_devices()
+
+            # Set last update
+            self.last_update = time.time()
+
+            # Update devices
+            for dev in self.devs:
+                Domoticz.Debug( "DEV name=" + dev.name() + " state=" +str(dev.state()) + " id=" + str(dev.object_id()) + " online=" + str(dev.available()) )
+                # Get unit number, if any
+                unit = getUnit(dev.object_id())
+                # If it's not in Domoticz already
+                if unit == 0:
+                    # Add it in the next available unit number
+                    unit = nextUnit()
+                    dev_type = dev.device_type()
+                    if dev_type == "light":
+                        if dev.data.get("color_mode") is None:
+                            Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=7, Image=0, DeviceID=dev.object_id()).Create()
+                        else:
+                            Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=2, Switchtype=7, DeviceID=dev.object_id()).Create()
+                    elif dev_type == "climate":
+                        Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=16, DeviceID=dev.object_id()).Create()
+                    elif dev_type == "scene":
+                        Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=9, DeviceID=dev.object_id()).Create()
+                    elif dev_type == "fan":
+                        Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=7, DeviceID=dev.object_id()).Create()
+                    elif dev_type == "cover":
+                        Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=3, DeviceID=dev.object_id()).Create()
+                    elif dev_type == "lock":
+                        Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=11, DeviceID=dev.object_id()).Create()
+                    elif dev_type == "switch":
+                        Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=9, DeviceID=dev.object_id()).Create()
+
+                # Update device
+                if dev.state() == False:
+                    UpdateDevice(unit, 0, 'Off', not dev.available())
+                else:
+                    UpdateDevice(unit, 1, 'On', not dev.available())
+
+        except Exception as err:
+            Domoticz.Error("handleThread: "+str(err)+' line '+format(sys.exc_info()[-1].tb_lineno))
+
+
+global _plugin
+_plugin = BasePlugin()
+
+def onStart():
+    global _plugin
+    _plugin.onStart()
+
+def onStop():
+    global _plugin
+    _plugin.onStop()
+
+def onConnect(Connection, Status, Description):
+    global _plugin
+    _plugin.onConnect(Connection, Status, Description)
+
+def onMessage(Connection, Data):
+    global _plugin
+    _plugin.onMessage(Connection, Data)
+
+def onCommand(Unit, Command, Level, Hue):
+    global _plugin
+    _plugin.onCommand(Unit, Command, Level, Hue)
+
+def onNotification(Name, Subject, Text, Status, Priority, Sound, ImageFile):
+    global _plugin
+    _plugin.onNotification(Name, Subject, Text, Status, Priority, Sound, ImageFile)
+
+def onDisconnect(Connection):
+    global _plugin
+    _plugin.onDisconnect(Connection)
+
+def onHeartbeat():
+    global _plugin
+    _plugin.onHeartbeat()
+
+    # Generic helper functions
+def DumpConfigToLog():
+    for x in Parameters:
+        if Parameters[x] != "":
+            Domoticz.Debug( "'" + x + "':'" + str(Parameters[x]) + "'")
+    Domoticz.Debug("Device count: " + str(len(Devices)))
+    for x in Devices:
+        Domoticz.Debug("Device:           " + str(x) + " - " + str(Devices[x]))
+        Domoticz.Debug("Device ID:       '" + str(Devices[x].ID) + "'")
+        Domoticz.Debug("Device Name:     '" + Devices[x].Name + "'")
+        Domoticz.Debug("Device nValue:    " + str(Devices[x].nValue))
+        Domoticz.Debug("Device sValue:   '" + Devices[x].sValue + "'")
+        Domoticz.Debug("Device LastLevel: " + str(Devices[x].LastLevel))
+    return
+
+# Loop thru domoticz devices and see if there's a device with matching DeviceID, if so, return unit number, otherwise return zero
+def getUnit(devid):
+    unit = 0
+    for x in Devices:
+        if Devices[x].DeviceID == devid:
+            unit = x
+            break
+    return unit
+
+# Find the smallest unit number available to add a device in domoticz
+def nextUnit():
+    unit = 1
+    while unit in Devices and unit < 255:
+        unit = unit + 1
+    return unit
+
+def UpdateDevice(Unit, nValue, sValue, TimedOut):
+    # Make sure that the Domoticz device still exists (they can be deleted) before updating it
+    if (Unit in Devices):
+        if (Devices[Unit].nValue != nValue) or (Devices[Unit].sValue != sValue) or (Devices[Unit].TimedOut != TimedOut):
+            Devices[Unit].Update(nValue=nValue, sValue=str(sValue), TimedOut=TimedOut)
+            Domoticz.Log("Update "+str(nValue)+":'"+str(sValue)+"' ("+Devices[Unit].Name+") TimedOut="+str(TimedOut))
+    return
+
+def rgb_to_hs(r, g, b):
+    r = float(r)
+    g = float(g)
+    b = float(b)
+    high = max(r, g, b)
+    low = min(r, g, b)
+    h, s = high, high
+
+    d = high - low
+    s = 0 if high == 0 else d/high
+
+    if high == low:
+        h = 0.0
+    else:
+        h = {
+            r: (g - b) / d + (6 if g < b else 0),
+            g: (b - r) / d + 2,
+            b: (r - g) / d + 4,
+        }[high]
+        h /= 6
+
+    return h, s
