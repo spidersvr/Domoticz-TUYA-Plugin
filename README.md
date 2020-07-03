@@ -1,13 +1,15 @@
 # Domoticz-TUYA-Plugin
 TUYA Plugin for Domoticz home automation
 
-Controls TUYA devices your network (on/off switches and TUYA Lights)
+Controls TUYA devices your network (mainly on/off switches and Lights). Tuya devices come in many brands and may come with different apps such as Smart Life or Jinvoo Smart, so select the matching App when configuring the plugin.
 
 ## Key Features
 
 * Auto-detects devices on your account
 * Tested with lights and switches (but should control other devices on/off)
 * Cloud control only uses your user/password account with encrypted communications without requiring IP or device IDs or Keys to configure it
+* Allows controlling Dimmer/RGB Color for lights
+* Supports scene activation
 
 ## Installation
 
@@ -32,7 +34,7 @@ To update:
 
 ## Configuration
 
-Enter your username and password for your tuya account along with your country code (1=US/Canada, 55=Brazil, etc). The initial setup of your devices should be done with the TUYA app and this plugin will detect/use the same settings and automatically find/add the devices into Domoticz.
+Enter your username and password for your app account along with your country code (1=US/Canada, 55=Brazil, etc). The initial setup of your devices should be done with the app and this plugin will detect/use the same settings and automatically find/add the devices into Domoticz.
 
 ## Usage
 
@@ -43,6 +45,7 @@ Devices detected are created in the 'Devices' tab, to use them you need to click
 
 | Version | Information|
 | ----- | ---------- |
+| 1.0.1 | Support for SmartLife and Jinvoo Apps |
 | 1.0.0 | Initial upload version |
 
 # Includes 'tuyaha' project:
