@@ -6,24 +6,33 @@
 <plugin key="tuya" name="TUYA" author="Wagner Oliveira" version="1.0.0" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/guino/Domoticz-TUYA">
     <description>
         <h2>TUYA Plugin</h2><br/>
-        This plugin is meant to control TUYA devices (on/off switches and Link LED lights)
+        This plugin is meant to control TUYA devices (mainly on/off switches and LED lights). TUYA devices may come with different brands and different Apps such as Smart Life or Jinvoo Smart, so select the corresponding App you're using below.
         <h3>Features</h3>
         <ul style="list-style-type:square">
             <li>Auto-detection of devices on network</li>
             <li>On/Off control, state and available status display</li>
+            <li>Dimmer/RGB Color setting for Lights</li>
+            <li>Scene activation support</li>
         </ul>
         <h3>Devices</h3>
         <ul style="list-style-type:square">
             <li>All devices that have on/off state should be supported</li>
         </ul>
         <h3>Configuration</h3>
-        Just enter your username and password for the TUYA app and everything will be configured automatically.
-        Devices can be renamed in Domoticz or you can rename them in the TUYA app and remove them from Domoticz so they are detected with a new name or layout.
+        Just enter your username and password for the App used and everything will be detected automatically.
+        Devices can be renamed in Domoticz or you can rename them in the App and remove them from Domoticz so they are detected with a new name or layout.
     </description>
     <params>
-        <param field="Username" label="TUYA Username" width="300px" required="true" default=""/>
-        <param field="Password" label="TUYA Password" width="300px" required="true" default="" password="true"/>
+        <param field="Username" label="App Username" width="300px" required="true" default=""/>
+        <param field="Password" label="App Password" width="300px" required="true" default="" password="true"/>
         <param field="Mode1" label="Country Code" width="30px" required="true" default="1"/>
+        <param field="Mode2" label="App" width="150px">
+            <options>
+                <option label="Tuya" value="tuya" default="true" />
+                <option label="Smart Life" value="smart_life"/>
+                <option label="Jinvoo Smart" value="jinvoo_smart"/>
+            </options>
+        </param>
         <param field="Mode6" label="Debug" width="150px">
             <options>
                 <option label="None" value="0"  default="true" />
@@ -66,6 +75,9 @@ class BasePlugin:
         # Mark all existing devices as off/timed out initially (until they are discovered)
         for u in Devices:
             UpdateDevice(u, 0, 'Off', True)
+        # If Mode2 is not set (previous version didn't use it), set it
+        if Parameters["Mode2"] == "":
+            Parameters["Mode2"] = "tuya"
         # Create/Start update thread
         self.updateThread = threading.Thread(name="TUYAUpdateThread", target=BasePlugin.handleThread, args=(self,))
         self.updateThread.start()
@@ -167,7 +179,7 @@ class BasePlugin:
             Domoticz.Debug("in handlethread")
             # Initialize/Update devices from TUYA API
             if self.startup == True:
-                self.devs = self.tuya.init(Parameters["Username"], Parameters["Password"], Parameters["Mode1"], "tuya")
+                self.devs = self.tuya.init(Parameters["Username"], Parameters["Password"], Parameters["Mode1"], Parameters["Mode2"])
             else:
                 self.tuya.check_access_token()
                 self.tuya.poll_devices_update()
