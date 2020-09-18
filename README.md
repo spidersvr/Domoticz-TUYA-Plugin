@@ -47,4 +47,5 @@ Devices detected are created in the 'Devices' tab, to use them you need to click
 
 # Original project:
 
-Cloned from https://github.com/guino/tuyaha to make a standalone project.
+Fork from https://github.com/guino/tuyaha to make a standalone project.
+
