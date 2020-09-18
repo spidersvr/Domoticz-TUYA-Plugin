@@ -17,7 +17,7 @@ Python version 3.4 or higher required & Domoticz version 3.9446 or greater.
 
 To install:
 * Go in your Domoticz directory using a command line and open the plugins directory.
-* The plugin requierd Python library tuyaha ```pip3 install tuyaha```
+* The plugin required Python library tuyaha and requests ```pip3 install tuyaha requests```
 * Run: ```git clone https://github.com/Xenomes/Domoticz-TUYA-Plugin.git```
 * Restart Domoticz.
 
@@ -26,11 +26,6 @@ To install:
 To update:
 * Go in your Domoticz directory using a command line and open the plugins directory then the Domoticz-TUYA directory.
 * Run: ```git pull```
-* Restart Domoticz.
-
-## Alternate Install/Update:
-
-* Simply create a directory under domoticz/plugins directory like 'TUYA' and download/copy the plugin.py file and tuyaha directory (with all its contents) into it.
 * Restart Domoticz.
 
 ## Configuration
