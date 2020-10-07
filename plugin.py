@@ -68,7 +68,7 @@ class BasePlugin:
     last_update = 0
 
     def __init__(self):
-        self.pollinterval = 600
+        self.tuya._discovery_interval = 600
         return
 
     def onStart(self):
