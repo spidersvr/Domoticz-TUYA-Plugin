@@ -41,6 +41,7 @@ Devices detected are created in the 'Devices' tab, to use them you need to click
 
 | Version | Information|
 | ----- | ---------- |
+| 1.0.3 | Update for tuyaha 0.0.8 |
 | 1.0.2 | Update light support added temperature control |
 | 1.0.1 | Support for SmartLife and Jinvoo Apps |
 | 1.0.0 | Initial upload version |
