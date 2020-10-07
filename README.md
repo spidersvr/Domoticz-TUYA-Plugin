@@ -17,7 +17,7 @@ Python version 3.4 or higher required & Domoticz version 3.9446 or greater.
 
 To install:
 * Go in your Domoticz directory using a command line and open the plugins directory.
-* The plugin required Python library tuyaha and requests ```pip3 install tuyaha==0.0.7 requests```
+* The plugin required Python library tuyaha and requests ```pip3 install tuyaha requests```
 * Run: ```git clone https://github.com/Xenomes/Domoticz-TUYA-Plugin.git```
 * Restart Domoticz.
 
@@ -41,6 +41,7 @@ Devices detected are created in the 'Devices' tab, to use them you need to click
 
 | Version | Information|
 | ----- | ---------- |
+| 1.0.3 | Update for tuyaha 0.0.8 |
 | 1.0.2 | Update light support added temperature control |
 | 1.0.1 | Support for SmartLife and Jinvoo Apps |
 | 1.0.0 | Initial upload version |
