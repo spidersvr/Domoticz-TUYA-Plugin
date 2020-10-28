@@ -8,7 +8,7 @@ Controls TUYA devices your network (mainly on/off switches and Lights). Tuya dev
 * Auto-detects devices on your account
 * Tested with lights and switches (but should control other devices on/off)
 * Cloud control only uses your user/password account with encrypted communications without requiring IP or device IDs or Keys to configure it
-* Allows controlling Dimmer/RGB Color for lights
+* Allows controlling Dimmer/RGB(WW) Color for lights
 * Supports scene activation
 
 ## Installation
@@ -46,7 +46,10 @@ Devices detected are created in the 'Devices' tab, to use them you need to click
 | 1.0.1 | Support for SmartLife and Jinvoo Apps |
 | 1.0.0 | Initial upload version |
 
+## Note
+
+I can only support devices or with similar functions that I have myself. Thank you for your understanding.
+
 # Original project:
 
 Fork from https://github.com/guino/tuyaha to make a standalone project.
-
