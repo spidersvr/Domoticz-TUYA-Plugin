@@ -6,7 +6,7 @@
 # Contributed: Xenomes (xenomes@outlook.com)
 #
 """
-<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.3" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
+<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.4" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
     <description>
         <h2>TUYA Plugin</h2><br/>
         This plugin is meant to control TUYA devices (mainly on/off switches and LED lights). TUYA devices may come with different brands and different Apps such as Smart Life or Jinvoo Smart, so select the corresponding App you're using below.
@@ -227,6 +227,8 @@ class BasePlugin:
                             # Light On/Off control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=7, Image=0, DeviceID=dev.object_id()).Create()
                         else:
+                            # Light On/Off control
+                            Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=7, Image=0, DeviceID=dev.object_id()).Create()
                             Domoticz.Debug("No controls found for your light device!")
                     elif dev_type == "climate":
                         Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=16, DeviceID=dev.object_id()).Create()
