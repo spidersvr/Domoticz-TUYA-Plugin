@@ -6,9 +6,9 @@
 # Contributed: Xenomes (xenomes@outlook.com)
 #
 """
-<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.4" wikilink="https://www.domoticz.com/forum/viewtopic.php?f=65&t=33145" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
+<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.5" wikilink="https://www.domoticz.com/forum/viewtopic.php?f=65&t=33145" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
     <description>
-        <h2>TUYA Plugin v.1.0.4</h2><br/>
+        <h2>TUYA Plugin v.1.0.5</h2><br/>
         This plugin is meant to control TUYA devices (mainly on/off switches and LED lights). TUYA devices may come with different brands and different Apps such as Smart Life or Jinvoo Smart, so select the corresponding App you're using below.
         <h3>Features</h3>
         <ul style="list-style-type:square">
@@ -69,6 +69,8 @@ class BasePlugin:
 
     def __init__(self):
         self.tuya._discovery_interval = 600
+        self.tuya._query_interval = 30
+        self.tuya._force_discovery = True
         return
 
     def onStart(self):
@@ -177,8 +179,8 @@ class BasePlugin:
 
     def onHeartbeat(self):
         Domoticz.Debug("onHeartbeat called time="+str(time.time()))
-        # If it hasn't been at least 1 minute (corrected for ~2s runtime) since last update, skip it
-        if time.time() - self.last_update < 58:
+        # If it hasn't been at least 1 minute since last update, skip it
+        if time.time() - self.last_update < 60:
             return
         self.startup = False
         # Create/Start update thread
@@ -193,8 +195,10 @@ class BasePlugin:
             if self.startup == True:
                 self.devs = self.tuya.init(Parameters["Username"], Parameters["Password"], Parameters["Mode1"], Parameters["Mode2"])
             else:
-                self.tuya.check_access_token()
-                self.tuya.poll_devices_update()
+                self.tuya._force_discovery = True
+                self.tuya.refresh_access_token()
+                self.tuya.discover_devices()
+                #self.tuya.poll_devices_update()
                 self.devs = self.tuya.get_all_devices()
 
             # Set last update
