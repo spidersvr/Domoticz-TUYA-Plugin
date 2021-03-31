@@ -214,16 +214,16 @@ class BasePlugin:
                     unit = nextUnit()
                     dev_type = dev.device_type()
                     if dev_type == "light":
-                        if dev.data.get("color_mode") is 'colour' and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
+                        if dev.data.get("color_mode") == 'colour' and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
                             # Light Color and White temperature contol
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=4, Switchtype=7, DeviceID=dev.object_id()).Create()
-                        elif dev.data.get("color_mode") is 'colour' and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
+                        elif dev.data.get("color_mode") == 'colour' and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
                             # Light Color control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=2, Switchtype=7, DeviceID=dev.object_id()).Create()
-                        elif dev.data.get("color_mode") is 'white' and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
+                        elif dev.data.get("color_mode") == 'white' and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
                             # Light White temperature control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=8, Switchtype=7, DeviceID=dev.object_id()).Create()
-                        elif dev.data.get("color_mode") is 'white' and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
+                        elif dev.data.get("color_mode") == 'white' and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
                             # Light Brightness control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=3, Switchtype=7, DeviceID=dev.object_id()).Create()
                         elif dev.data.get("color_mode") is None and dev.data.get("color_temp") is None and dev.data.get("brightness") is None:
