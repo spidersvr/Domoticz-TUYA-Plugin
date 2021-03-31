@@ -1,4 +1,3 @@
-
 # Domoticz TUYA Plugin
 #
 # Author: Wagner Oliveira (wbbo@hotmail.com)
@@ -6,15 +5,15 @@
 # Contributed: Xenomes (xenomes@outlook.com)
 #
 """
-<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.3" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
+<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.6a" wikilink="https://www.domoticz.com/forum/viewtopic.php?f=65&t=33145" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
     <description>
-        <h2>TUYA Plugin</h2><br/>
+        <h2>TUYA Plugin v.1.0.6a</h2><br/>
         This plugin is meant to control TUYA devices (mainly on/off switches and LED lights). TUYA devices may come with different brands and different Apps such as Smart Life or Jinvoo Smart, so select the corresponding App you're using below.
         <h3>Features</h3>
         <ul style="list-style-type:square">
             <li>Auto-detection of devices on network</li>
             <li>On/Off control, state and available status display</li>
-            <li>Dimmer/RGB Color setting for Lights</li>
+            <li>Dimmer/RGBWW Color setting for Lights</li>
             <li>Scene activation support</li>
         </ul>
         <h3>Devices</h3>
@@ -69,6 +68,8 @@ class BasePlugin:
 
     def __init__(self):
         self.tuya._discovery_interval = 600
+        self.tuya._query_interval = 30
+        self.tuya._force_discovery = True
         return
 
     def onStart(self):
@@ -177,8 +178,8 @@ class BasePlugin:
 
     def onHeartbeat(self):
         Domoticz.Debug("onHeartbeat called time="+str(time.time()))
-        # If it hasn't been at least 1 minute (corrected for ~2s runtime) since last update, skip it
-        if time.time() - self.last_update < 58:
+        # If it hasn't been at least 1 minute since last update, skip it
+        if time.time() - self.last_update < 60:
             return
         self.startup = False
         # Create/Start update thread
@@ -193,8 +194,10 @@ class BasePlugin:
             if self.startup == True:
                 self.devs = self.tuya.init(Parameters["Username"], Parameters["Password"], Parameters["Mode1"], Parameters["Mode2"])
             else:
-                self.tuya.check_access_token()
-                self.tuya.poll_devices_update()
+                self.tuya._force_discovery = True
+                self.tuya.refresh_access_token()
+                self.tuya.discover_devices()
+                #self.tuya.poll_devices_update()
                 self.devs = self.tuya.get_all_devices()
 
             # Set last update
@@ -211,22 +214,24 @@ class BasePlugin:
                     unit = nextUnit()
                     dev_type = dev.device_type()
                     if dev_type == "light":
-                        if dev.data.get("color_mode") is not None and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
+                        if dev.data.get("color_mode") is 'Colour' and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
                             # Light Color and White temperature contol
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=4, Switchtype=7, DeviceID=dev.object_id()).Create()
-                        elif dev.data.get("color_mode") is not None and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
+                        elif dev.data.get("color_mode") is 'Colour' and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
                             # Light Color control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=2, Switchtype=7, DeviceID=dev.object_id()).Create()
-                        elif dev.data.get("color_mode") is None and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
+                        elif dev.data.get("color_mode") is 'White' and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
                             # Light White temperature control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=8, Switchtype=7, DeviceID=dev.object_id()).Create()
-                        elif dev.data.get("color_mode") is None and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
+                        elif dev.data.get("color_mode") is 'White' and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
                             # Light Brightness control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=3, Switchtype=7, DeviceID=dev.object_id()).Create()
                         elif dev.data.get("color_mode") is None and dev.data.get("color_temp") is None and dev.data.get("brightness") is None:
                             # Light On/Off control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=7, Image=0, DeviceID=dev.object_id()).Create()
                         else:
+                            # Light On/Off control
+                            Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=7, Image=0, DeviceID=dev.object_id()).Create()
                             Domoticz.Debug("No controls found for your light device!")
                     elif dev_type == "climate":
                         Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=16, DeviceID=dev.object_id()).Create()
