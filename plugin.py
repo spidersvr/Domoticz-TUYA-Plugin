@@ -5,9 +5,9 @@
 # Contributed: Xenomes (xenomes@outlook.com)
 #
 """
-<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.6a" wikilink="https://www.domoticz.com/forum/viewtopic.php?f=65&t=33145" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
+<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.6" wikilink="https://www.domoticz.com/forum/viewtopic.php?f=65&t=33145" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
     <description>
-        <h2>TUYA Plugin v.1.0.6a</h2><br/>
+        <h2>TUYA Plugin v.1.0.6</h2><br/>
         This plugin is meant to control TUYA devices (mainly on/off switches and LED lights). TUYA devices may come with different brands and different Apps such as Smart Life or Jinvoo Smart, so select the corresponding App you're using below.
         <h3>Features</h3>
         <ul style="list-style-type:square">

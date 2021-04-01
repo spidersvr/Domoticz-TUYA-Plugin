@@ -8,7 +8,8 @@ Controls TUYA devices your network (mainly on/off switches and Lights). Tuya dev
 * Auto-detects devices on your account
 * Tested with lights and switches (but should control other devices on/off)
 * Cloud control only uses your user/password account with encrypted communications without requiring IP or device IDs or Keys to configure it
-* Allows controlling Dimmer/RGB(WW) Color for lights (⚠ RGBW(W) lights mustbe on a color for correct detection ⚠)
+* Allows controlling Dimmer/RGB(WW) Color for lights
+  (⚠ RGBW(W) lights mustbe on a color for correct detection ⚠)
 * Supports scene activation
 
 ## Installation
@@ -57,3 +58,7 @@ Write an email to tuyasmart@tuya.com and mention the tuyapy library and https://
 ## Note
 
 I can only support devices or with similar functions that I have myself. Thank you for your understanding.
+
+# Original project:
+
+Fork from https://github.com/guino/tuyaha to make a standalone project.
