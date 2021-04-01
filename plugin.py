@@ -1,4 +1,3 @@
-
 # Domoticz TUYA Plugin
 #
 # Author: Wagner Oliveira (wbbo@hotmail.com)
@@ -6,9 +5,9 @@
 # Contributed: Xenomes (xenomes@outlook.com)
 #
 """
-<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.5" wikilink="https://www.domoticz.com/forum/viewtopic.php?f=65&t=33145" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
+<plugin key="tuya" name="TUYA" author="Wagner Oliveira" contributed="Xenomes" version="1.0.6" wikilink="https://www.domoticz.com/forum/viewtopic.php?f=65&t=33145" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
     <description>
-        <h2>TUYA Plugin v.1.0.5</h2><br/>
+        <h2>TUYA Plugin v.1.0.6</h2><br/>
         This plugin is meant to control TUYA devices (mainly on/off switches and LED lights). TUYA devices may come with different brands and different Apps such as Smart Life or Jinvoo Smart, so select the corresponding App you're using below.
         <h3>Features</h3>
         <ul style="list-style-type:square">
@@ -215,16 +214,16 @@ class BasePlugin:
                     unit = nextUnit()
                     dev_type = dev.device_type()
                     if dev_type == "light":
-                        if dev.data.get("color_mode") is not None and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
+                        if dev.data.get("color_mode") == 'colour' and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
                             # Light Color and White temperature contol
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=4, Switchtype=7, DeviceID=dev.object_id()).Create()
-                        elif dev.data.get("color_mode") is not None and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
+                        elif dev.data.get("color_mode") == 'colour' and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
                             # Light Color control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=2, Switchtype=7, DeviceID=dev.object_id()).Create()
-                        elif dev.data.get("color_mode") is None and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
+                        elif dev.data.get("color_mode") == 'white' and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
                             # Light White temperature control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=8, Switchtype=7, DeviceID=dev.object_id()).Create()
-                        elif dev.data.get("color_mode") is None and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
+                        elif dev.data.get("color_mode") == 'white' and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
                             # Light Brightness control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=3, Switchtype=7, DeviceID=dev.object_id()).Create()
                         elif dev.data.get("color_mode") is None and dev.data.get("color_temp") is None and dev.data.get("brightness") is None:

@@ -9,6 +9,7 @@ Controls TUYA devices your network (mainly on/off switches and Lights). Tuya dev
 * Tested with lights and switches (but should control other devices on/off)
 * Cloud control only uses your user/password account with encrypted communications without requiring IP or device IDs or Keys to configure it
 * Allows controlling Dimmer/RGB(WW) Color for lights
+  (⚠ RGBW(W) lights mustbe on a color for correct detection ⚠)
 * Supports scene activation
 
 ## Installation
@@ -42,6 +43,7 @@ Devices detected are created in the 'Devices' tab, to use them you need to click
 
 | Version | Information|
 | ----- | ---------- |
+| 1.0.6 | Added detection for White and RGB(WW) lights|
 | 1.0.5 | Fixed update time api to Domoticz from 10 min to 1 min |
 | 1.0.4 | Add light device if no match found in the json |
 | 1.0.3 | Update for tuyaha 0.0.8 |
