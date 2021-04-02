@@ -220,6 +220,9 @@ class BasePlugin:
                         elif dev.data.get("color_mode") == 'colour' and dev.data.get("color_temp") is None and dev.data.get("brightness") is not None:
                             # Light Color control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=2, Switchtype=7, DeviceID=dev.object_id()).Create()
+                        elif dev.data.get("color_mode") == 'colour' and dev.data.get("color_temp") is None and dev.data.get("brightness") is None:
+                            # Light Color control
+                            Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=2, Switchtype=7, DeviceID=dev.object_id()).Create()
                         elif dev.data.get("color_mode") == 'white' and dev.data.get("color_temp") is not None and dev.data.get("brightness") is not None:
                             # Light White temperature control
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=241, Subtype=8, Switchtype=7, DeviceID=dev.object_id()).Create()
