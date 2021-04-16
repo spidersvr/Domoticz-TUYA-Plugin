@@ -10,7 +10,7 @@
         Support forum: <a href="https://www.domoticz.com/forum/viewtopic.php?f=65&amp;t=33145">https://www.domoticz.com/forum/viewtopic.php?f=65&amp;t=33145</a><br/>
         Support forum Dutch: <a href="https://contactkring.nl/phpbb/viewtopic.php?f=60&amp;t=846">https://contactkring.nl/phpbb/viewtopic.php?f=60&amp;t=846</a><br/>
         <br/>
-        <h2>TUYA Plugin v.1.0.6</h2><br/>
+        <h2>TUYA Plugin v.1.0.7</h2><br/>
         This plugin is meant to control TUYA devices (mainly on/off switches and LED lights). TUYA devices may come with different brands and different Apps such as Smart Life or Jinvoo Smart, so select the corresponding App you're using below.
         <h3>Features</h3>
         <ul style="list-style-type:square">
@@ -53,7 +53,10 @@
     </params>
 </plugin>
 """
-import Domoticz
+try:
+    import Domoticz
+except ImportError:
+    import fakeDomoticz as Domoticz
 import threading
 import socket
 import html
@@ -76,6 +79,8 @@ class BasePlugin:
         return
 
     def onStart(self):
+        Domoticz.Log("Waiting 60 seconds to connect TuyaApi login timeout")
+        time.sleep(60)
         Domoticz.Log("TUYA plugin started")
         if Parameters["Mode6"] != "0":
             Domoticz.Debugging(int(Parameters["Mode6"]))
@@ -151,13 +156,13 @@ class BasePlugin:
             # If color changed
             if Devices[Unit].Color != Hue:
                 if mode == 3:
-                      dev.set_color( [ h*360, s*100 ] )
-                      Domoticz.Debug("Set color called")
+                    dev.set_color( [ h*360, s*100 ] )
+                    Domoticz.Debug("Set color called")
                 if mode == 2:
-                      temp = round(2700+((6500-2700)/255*(255-t)))
-                      Domoticz.Debug("temp = " + str(temp))
-                      dev.set_color_temp( temp )
-                      Domoticz.Debug("Set white called")
+                    temp = round(2700+((6500-2700)/255*(255-t)))
+                    Domoticz.Debug("temp = " + str(temp))
+                    dev.set_color_temp( temp )
+                    Domoticz.Debug("Set white called")
             # If level changed
             if Devices[Unit].sValue != str(Level):
                 dev.set_brightness(round(Level*2.55))
@@ -182,7 +187,7 @@ class BasePlugin:
     def onHeartbeat(self):
         Domoticz.Debug("onHeartbeat called time="+str(time.time()))
         # If it hasn't been at least 1 minute since last update, skip it
-        if time.time() - self.last_update < 60:
+        if time.time() - self.last_update < 61:
             return
         self.startup = False
         # Create/Start update thread
@@ -194,6 +199,7 @@ class BasePlugin:
         try:
             Domoticz.Debug("in handlethread")
             # Initialize/Update devices from TUYA API
+            Domoticz.Log( "self.startup" + str(self.startup))
             if self.startup == True:
                 self.devs = self.tuya.init(Parameters["Username"], Parameters["Password"], Parameters["Mode1"], Parameters["Mode2"])
             else:
@@ -260,7 +266,6 @@ class BasePlugin:
 
         except Exception as err:
             Domoticz.Error("handleThread: "+str(err)+' line '+format(sys.exc_info()[-1].tb_lineno))
-
 
 global _plugin
 _plugin = BasePlugin()
