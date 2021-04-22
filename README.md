@@ -42,6 +42,7 @@ Devices detected are created in the 'Devices' tab, to use them you need to click
 
 | Version | Information|
 | ----- | ---------- |
+| 1.0.8 | Added fix for 0 device detection|
 | 1.0.7 | Added fix for error Tuyaapi time-out|
 | 1.0.6 | Added detection for White and RGB(WW) lights|
 | 1.0.5 | Fixed update time api to Domoticz from 10 min to 1 min |
