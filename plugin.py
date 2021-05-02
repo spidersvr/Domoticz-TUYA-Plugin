@@ -250,7 +250,7 @@ class BasePlugin:
                     elif dev_type == "climate":
                         Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=16, DeviceID=dev.object_id()).Create()
                     elif dev_type == "scene":
-                        Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=9, DeviceID=dev.object_id()).Create()
+                        Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=9, Image=9, DeviceID=dev.object_id()).Create()
                     elif dev_type == "fan":
                         Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=7, DeviceID=dev.object_id()).Create()
                     elif dev_type == "cover":
