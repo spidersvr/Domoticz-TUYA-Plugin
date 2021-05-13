@@ -5,12 +5,12 @@
 # Contributed: Xenomes (xenomes@outlook.com)
 #
 """
-<plugin key="tuya" name="TUYA" author="Wagner Oliveira contributed Xenomes" version="1.0.9" wikilink="" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
+<plugin key="tuya" name="TUYA" author="Wagner Oliveira contributed Xenomes" version="1.0.10 alpha" wikilink="" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
     <description>
         Support forum: <a href="https://www.domoticz.com/forum/viewtopic.php?f=65&amp;t=33145">https://www.domoticz.com/forum/viewtopic.php?f=65&amp;t=33145</a><br/>
         Support forum Dutch: <a href="https://contactkring.nl/phpbb/viewtopic.php?f=60&amp;t=846">https://contactkring.nl/phpbb/viewtopic.php?f=60&amp;t=846</a><br/>
         <br/>
-        <h2>TUYA Plugin v.1.0.9</h2><br/>
+        <h2>TUYA Plugin v.1.0.10 alpha</h2><br/>
         This plugin is meant to control TUYA devices (mainly on/off switches and LED lights). TUYA devices may come with different brands and different Apps such as Smart Life or Jinvoo Smart, so select the corresponding App you're using below.
         <h3>Features</h3>
         <ul style="list-style-type:square">
@@ -36,6 +36,12 @@
                 <option label="Tuya" value="tuya" default="true" />
                 <option label="Smart Life" value="smart_life"/>
                 <option label="Jinvoo Smart" value="jinvoo_smart"/>
+            </options>
+        </param>
+        <param field="Mode3" label="Temperature scale" width="150px">
+            <options>
+                <option label="Celsius" value="CELSIUS" default="true" />
+                <option label="Fahrenheit" value="FAHRENHEIT"/>
             </options>
         </param>
         <param field="Mode6" label="Debug" width="150px">
@@ -174,6 +180,11 @@ class BasePlugin:
             dev.set_brightness(round(Level*2.55))
             # Update status of Domoticz device
             UpdateDevice(Unit, 1 if Devices[Unit].Type == 241 else 2, str(Level), Devices[Unit].TimedOut)
+        elif Command == 'Set Temperature':
+            # Set Temperature
+            if Devices[Unit].SetPoint != set_temperature:
+                Domoticz.Debug("Temperature DZ = " + str(SetPoint) + " Temperature tuya = " + str(set_temperature))
+                dev.set_temperature(SetPoint)
 
         # Set last update
         self.last_update = time.time()
@@ -249,6 +260,10 @@ class BasePlugin:
                             Domoticz.Debug("No controls found for your light device!")
                     elif dev_type == "climate":
                         Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=16, DeviceID=dev.object_id()).Create()
+                        if dev.data.get("current_temperature") is not None:
+                            Domoticz.Device(Name=dev.name(), Unit=unit, Type=80, Subtype=5, Switchtype=0, DeviceID=dev.object_id()).Create()   
+                        if dev.data.get("temperature") is not None:
+                            Domoticz.Device(Name=dev.name(), Unit=unit, Type=242, Subtype=1, Switchtype=0, DeviceID=dev.object_id()).Create()
                     elif dev_type == "scene":
                         Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=9, Image=9, DeviceID=dev.object_id()).Create()
                     elif dev_type == "fan":
