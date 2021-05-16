@@ -261,8 +261,10 @@ class BasePlugin:
                     elif dev_type == "climate":
                         Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=0, Image=16, DeviceID=dev.object_id()).Create()
                         if dev.data.get("current_temperature") is not None:
+                            unit = nextUnit()
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=80, Subtype=5, Switchtype=0, DeviceID=dev.object_id()).Create()   
                         if dev.data.get("temperature") is not None:
+                            unit = nextUnit()
                             Domoticz.Device(Name=dev.name(), Unit=unit, Type=242, Subtype=1, Switchtype=0, DeviceID=dev.object_id()).Create()
                     elif dev_type == "scene":
                         Domoticz.Device(Name=dev.name(), Unit=unit, Type=244, Subtype=73, Switchtype=9, Image=9, DeviceID=dev.object_id()).Create()
