@@ -125,7 +125,7 @@ class BasePlugin:
 
         # If we didn't find it, leave (probably disconnected at this time)
         if dev == None:
-            Domoticz.Error('Command for DeviceID='+Devices[Unit].DeviceID+' but device is not available.')
+            Domoticz.Log('Command for DeviceID='+Devices[Unit].DeviceID+' but device is not available.')
             return
 
         if not dev.available():
