@@ -123,7 +123,7 @@ class BasePlugin:
             return
 
         if not dev.available():
-            Domoticz.Error('Command for DeviceID='+Devices[Unit].DeviceID+' but device is offline.')
+            Domoticz.Log('Command for DeviceID='+Devices[Unit].DeviceID+' but device is offline.')
             return
 
         Domoticz.Log('Sending command for DeviceID='+Devices[Unit].DeviceID)
