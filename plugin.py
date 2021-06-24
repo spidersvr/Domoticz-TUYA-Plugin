@@ -107,7 +107,7 @@ class BasePlugin:
         Domoticz.Debug("onMessage called")
 
     def onCommand(self, Unit, Command, Level, Hue):
-        # Domoticz.Debug("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
+        Domoticz.Debug("onCommand called for Unit " + str(Unit) + ": Parameter '" + str(Command) + "', Level: " + str(Level))
 
         # Find the device for the Domoticz unit number provided
         dev = None
@@ -119,7 +119,7 @@ class BasePlugin:
 
         # If we didn't find it, leave (probably disconnected at this time)
         if dev == None:
-            Domoticz.Log('Command for DeviceID='+Devices[Unit].DeviceID+' but device is not available.')
+            Domoticz.Error('Command for DeviceID='+Devices[Unit].DeviceID+' but device is not available.')
             return
 
         if not dev.available():
