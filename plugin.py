@@ -36,12 +36,7 @@
                 <option label="Tuya" value="tuya" default="true" />
                 <option label="Smart Life" value="smart_life"/>
                 <option label="Jinvoo Smart" value="jinvoo_smart"/>
-            </options>
-        </param>
-        <param field="Mode3" label="Temperature scale" width="150px">
-            <options>
-                <option label="Celsius" value="CELSIUS" default="true" />
-                <option label="Fahrenheit" value="FAHRENHEIT"/>
+                <option label="Woox Home" value="woox_home"/>
             </options>
         </param>
         <param field="Mode6" label="Debug" width="150px">
