@@ -268,7 +268,7 @@ class BasePlugin:
                 else:
                     UpdateDevice(unit, 1, 'On', not dev.available())
 
-                if dev_type == "cover" and dev.state() <> 'Stop':
+                if dev_type == "cover" and dev.state() != 'Stop':
                     UpdateDevice(unit, 1, 'Stop', not dev.available())
 
                 if dev.state() == True and not dev.available():
