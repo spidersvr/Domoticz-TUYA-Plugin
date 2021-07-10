@@ -268,6 +268,9 @@ class BasePlugin:
                 else:
                     UpdateDevice(unit, 1, 'On', not dev.available())
 
+                if dev_type == "cover" and dev.state() <> 'Stop':
+                    UpdateDevice(unit, 1, 'Stop', not dev.available())
+
                 if dev.state() == True and not dev.available():
                     UpdateDevice(unit, 0, 'Off', not dev.available())
                     Domoticz.Log('DeviceID='+Devices[unit].DeviceID+' Turned off because device is offline.')
