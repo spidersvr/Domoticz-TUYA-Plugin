@@ -146,7 +146,7 @@ class BasePlugin:
             else:
                 dev.turn_off();
             UpdateDevice(Unit, 0, 'Off', not dev.available())
-        elif dev_type == 'cover' and Command == 'stop':
+        elif dev_type == 'cover' and Command == 'Stop':
             dev.stop_cover()
         elif Command == 'Set Color':
             # Convert RGB to Hue+Saturation
