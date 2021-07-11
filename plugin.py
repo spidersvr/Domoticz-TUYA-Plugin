@@ -265,11 +265,13 @@ class BasePlugin:
                 # Update device
                 if dev.state() == False:
                     UpdateDevice(unit, 0, 'Off', not dev.available())
-                else:
+                elif dev.state() == True:
                     UpdateDevice(unit, 1, 'On', not dev.available())
+                else:
+                    Domoticz.Log('DeviceID='+Devices[unit].DeviceID+' State update skiped. status = '+dev.state)
 
-                if dev.device_type() == 'cover' and dev.state() != 'Stop':
-                    UpdateDevice(unit, 1, 'Stop', not dev.available())
+                #if dev.device_type() == 'cover' and dev.state() != 'Stop':
+                #    UpdateDevice(unit, 1, 'Stop', not dev.available())
 
                 if dev.state() == True and not dev.available():
                     UpdateDevice(unit, 0, 'Off', not dev.available())
