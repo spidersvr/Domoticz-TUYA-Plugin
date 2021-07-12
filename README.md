@@ -42,6 +42,7 @@ Devices detected are created in the 'Devices' tab, to use them you need to click
 
 | Version | Information|
 | ----- | ---------- |
+| 1.0.12 | Fix for cover or blinds status |
 | 1.0.11 | Added stop for cover or blinds |
 | 1.0.10 | Added turn off for off-line devices |
 | 1.0.9 | Changed scene switch type to push button |

@@ -5,12 +5,12 @@
 # Contributed: Xenomes (xenomes@outlook.com)
 #
 """
-<plugin key="tuya" name="TUYA" author="Wagner Oliveira contributed Xenomes" version="1.0.11" wikilink="" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
+<plugin key="tuya" name="TUYA" author="Wagner Oliveira contributed Xenomes" version="1.0.12" wikilink="" externallink="https://github.com/Xenomes/Domoticz-TUYA-Plugin.git">
     <description>
         Support forum: <a href="https://www.domoticz.com/forum/viewtopic.php?f=65&amp;t=33145">https://www.domoticz.com/forum/viewtopic.php?f=65&amp;t=33145</a><br/>
         Support forum Dutch: <a href="https://contactkring.nl/phpbb/viewtopic.php?f=60&amp;t=846">https://contactkring.nl/phpbb/viewtopic.php?f=60&amp;t=846</a><br/>
         <br/>
-        <h2>TUYA Plugin v.1.0.11</h2><br/>
+        <h2>TUYA Plugin v.1.0.12</h2><br/>
         This plugin is meant to control TUYA devices (mainly on/off switches and LED lights). TUYA devices may come with different brands and different Apps such as Smart Life or Jinvoo Smart, so select the corresponding App you're using below.
         <h3>Features</h3>
         <ul style="list-style-type:square">
@@ -265,8 +265,13 @@ class BasePlugin:
                 # Update device
                 if dev.state() == False:
                     UpdateDevice(unit, 0, 'Off', not dev.available())
-                else:
+                elif dev.state() == True:
                     UpdateDevice(unit, 1, 'On', not dev.available())
+                else:
+                    Domoticz.Log('DeviceID='+Devices[unit].DeviceID+' State update skiped. status = '+str(dev.state()))
+
+                #if dev.device_type() == 'cover' and dev.state() != 'Stop':
+                #    UpdateDevice(unit, 1, 'Stop', not dev.available())
 
                 if dev.state() == True and not dev.available():
                     UpdateDevice(unit, 0, 'Off', not dev.available())
